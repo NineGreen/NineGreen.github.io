@@ -1,0 +1,605 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>九青 - 一个正在跌跌撞撞前行的探索者</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    
+    <!-- Custom Tailwind Config -->
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        primary: {
+                            light: '#6366f1',
+                            DEFAULT: '#4f46e5',
+                            dark: '#4338ca',
+                        }
+                    },
+                    animation: {
+                        'fade-in': 'fadeIn 0.6s ease-in-out',
+                        'slide-up': 'slideUp 0.8s ease-out',
+                        'float': 'float 6s ease-in-out infinite',
+                    },
+                    keyframes: {
+                        fadeIn: {
+                            '0%': { opacity: '0' },
+                            '100%': { opacity: '1' },
+                        },
+                        slideUp: {
+                            '0%': { transform: 'translateY(20px)', opacity: '0' },
+                            '100%': { transform: 'translateY(0)', opacity: '1' },
+                        },
+                        float: {
+                            '0%, 100%': { transform: 'translateY(0)' },
+                            '50%': { transform: 'translateY(-10px)' },
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    
+    <style>
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #888;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #666;
+        }
+        
+        /* Smooth Scroll */
+        html {
+            scroll-behavior: smooth;
+        }
+        
+        /* Glass Effect */
+        .glass {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .dark .glass {
+            background: rgba(0, 0, 0, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        /* Card Hover Effect */
+        .hover-card {
+            transition: all 0.3s ease;
+        }
+        .hover-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+        }
+        .dark .hover-card:hover {
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+        }
+        
+        /* Button Effect */
+        .btn-primary {
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+        .btn-primary::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            transition: width 0.6s, height 0.6s;
+        }
+        .btn-primary:hover::before {
+            width: 300px;
+            height: 300px;
+        }
+        
+        /* Loading Animation */
+        .loading-animation {
+            opacity: 0;
+            animation: fadeIn 0.6s ease-in-out forwards;
+        }
+        
+        /* Navigation Active State */
+        .nav-link {
+            position: relative;
+            transition: color 0.3s ease;
+        }
+        .nav-link::after {
+            content: '';
+            position: absolute;
+            bottom: -2px;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: #4f46e5;
+            transition: width 0.3s ease;
+        }
+        .nav-link:hover::after,
+        .nav-link.active::after {
+            width: 100%;
+        }
+        
+        /* Text Gradient */
+        .text-gradient {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+    </style>
+</head>
+<body class="bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100 transition-colors duration-300">
+    
+    <!-- Navigation -->
+    <nav class="fixed top-0 left-0 right-0 z-50 glass">
+        <div class="container mx-auto px-6 py-4">
+            <div class="flex items-center justify-between">
+                <div class="text-xl font-bold text-gradient">九青</div>
+                <div class="hidden md:flex items-center space-x-8">
+                    <a href="#about" class="nav-link">关于我</a>
+                    <a href="#journey" class="nav-link">我的探索</a>
+                    <a href="#looking-for" class="nav-link">我在寻找</a>
+                    <a href="#ai-chat" class="nav-link">AI对话</a>
+                    <a href="#contact" class="nav-link">联系我</a>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <button id="theme-toggle" class="p-2 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors">
+                        <i class="fas fa-moon dark:hidden"></i>
+                        <i class="fas fa-sun hidden dark:block"></i>
+                    </button>
+                    <button id="mobile-menu-toggle" class="md:hidden p-2">
+                        <i class="fas fa-bars"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Mobile Menu -->
+        <div id="mobile-menu" class="hidden md:hidden">
+            <div class="px-6 py-4 space-y-2">
+                <a href="#about" class="block py-2 nav-link">关于我</a>
+                <a href="#journey" class="block py-2 nav-link">我的探索</a>
+                <a href="#looking-for" class="block py-2 nav-link">我在寻找</a>
+                <a href="#ai-chat" class="block py-2 nav-link">AI对话</a>
+                <a href="#contact" class="block py-2 nav-link">联系我</a>
+            </div>
+        </div>
+    </nav>
+    
+    <!-- Hero Section -->
+    <section class="min-h-screen flex items-center justify-center relative overflow-hidden">
+        <div class="absolute inset-0 bg-gradient-to-br from-purple-100 via-pink-50 to-blue-100 dark:from-purple-900/20 dark:via-pink-900/20 dark:to-blue-900/20"></div>
+        <div class="container mx-auto px-6 relative z-10">
+            <div class="grid md:grid-cols-2 gap-12 items-center">
+                <div class="loading-animation">
+                    <h1 class="text-5xl md:text-6xl font-bold mb-6">
+                        你好，我是<span class="text-gradient">九青</span>
+                    </h1>
+                    <h2 class="text-2xl md:text-3xl text-gray-600 dark:text-gray-300 mb-8">
+                        一个正在跌跌撞撞前行的探索者
+                    </h2>
+                    <p class="text-lg text-gray-600 dark:text-gray-400 mb-8 leading-relaxed">
+                        我是一个不愿被环境定义，主动向外探索的终身学习者<br>
+                        我是一个即使经历万般挫折，却仍然愿意捧起好奇与勇气重新上路的行路人<br>
+                        也是一个正在探索内心，渴望建立真诚、深度链接的伙伴的小孩
+                    </p>
+                    <div class="flex flex-wrap gap-4">
+                        <a href="#contact" class="btn-primary bg-primary text-white px-6 py-3 rounded-lg hover:bg-primary-dark transition-all">
+                            <i class="fas fa-comment-dots mr-2"></i>和我聊聊
+                        </a>
+                        <a href="#journey" class="border-2 border-primary text-primary px-6 py-3 rounded-lg hover:bg-primary hover:text-white transition-all">
+                            <i class="fas fa-compass mr-2"></i>了解我的故事
+                        </a>
+                    </div>
+                </div>
+                <div class="relative">
+                    <div class="absolute -inset-4 bg-gradient-to-r from-purple-400 to-pink-400 rounded-lg blur-lg opacity-20 animate-float"></div>
+                    <img src="https://ipfs.crossbell.io/ipfs/Qma5eoFGStvsfG2FVnRYPmjNe9dWh67GbiC4KsAhJCUvdZ" 
+                         alt="九青个人照片" 
+                         class="relative rounded-lg shadow-2xl w-full max-w-md mx-auto hover-card">
+                </div>
+            </div>
+        </div>
+        <div class="absolute bottom-8 left-1/2 transform -translate-x-1/2 animate-bounce">
+            <i class="fas fa-chevron-down text-2xl text-gray-400"></i>
+        </div>
+    </section>
+    
+    <!-- About Section -->
+    <section id="about" class="py-20 bg-white dark:bg-gray-800">
+        <div class="container mx-auto px-6">
+            <h2 class="text-4xl font-bold text-center mb-12 loading-animation">关于我</h2>
+            <div class="grid md:grid-cols-2 gap-8">
+                <div class="glass rounded-2xl p-8 hover-card loading-animation">
+                    <div class="flex items-center mb-6">
+                        <div class="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center mr-4">
+                            <i class="fas fa-brain text-primary text-xl"></i>
+                        </div>
+                        <h3 class="text-2xl font-semibold">MBTI: INFP</h3>
+                    </div>
+                    <h4 class="text-lg text-gray-600 dark:text-gray-300 mb-4">理想主义者 · 心灵性慧</h4>
+                    <p class="text-gray-600 dark:text-gray-400 leading-relaxed">
+                        理想主义者，忠于自己的价值观<br>
+                        对世界好奇，勇于探索未知领域<br>
+                        崇尚和谐，追求精神层面的成长
+                    </p>
+                </div>
+                
+                <div class="glass rounded-2xl p-8 hover-card loading-animation" style="animation-delay: 0.2s">
+                    <div class="flex items-center mb-6">
+                        <div class="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center mr-4">
+                            <i class="fas fa-yin-yang text-primary text-xl"></i>
+                        </div>
+                        <h3 class="text-2xl font-semibold">武道修行者</h3>
+                    </div>
+                    <h4 class="text-lg text-gray-600 dark:text-gray-300 mb-4">需于郊 · 利用恒</h4>
+                    <p class="text-gray-600 dark:text-gray-400 leading-relaxed">
+                        我坚持时间最久的事情，可能就是对于武道的修行。我本是沧州苗刀的承习者，为了追求更多的体验，最近也开始学习剑道。
+                        在习武的过程中，我致力于追寻一种境界「どんな状況に置かれても平常心でいられること」（无论身处何种状况，都能保持平常心）。
+                        或许只有舍弃“想要战胜谁”的这种想法，才有可能达到这种境界吧。所以我尝试着将习武变成修心，将技艺转变成在逆境中的韧性。
+                    </p>
+                </div>
+            </div>
+            
+            <div class="mt-12 text-center">
+                <img src="https://ipfs.crossbell.io/ipfs/QmUn7fWCjurnzWZ5UpaLqHG1rZ8PFo4L5yHE71bpg1xcML" 
+                     alt="九青剑道照片" 
+                     class="rounded-lg shadow-xl mx-auto max-w-2xl w-full hover-card loading-animation" style="animation-delay: 0.4s">
+            </div>
+        </div>
+    </section>
+    
+    <!-- Journey Section -->
+    <section id="journey" class="py-20 bg-gray-50 dark:bg-gray-900">
+        <div class="container mx-auto px-6">
+            <h2 class="text-4xl font-bold text-center mb-12 loading-animation">我的探索之旅</h2>
+            <div class="max-w-4xl mx-auto">
+                <p class="text-center text-gray-600 dark:text-gray-400 mb-12 loading-animation">
+                    过去一年，我像一个勇敢的探险家，在各个领域留下足迹。<br>
+                    虽然没有收获耀眼的成果，但每一次尝试都让我更了解自己。
+                </p>
+                
+                <div class="grid md:grid-cols-2 gap-6">
+                    <!-- Journey Cards -->
+                    <div class="bg-white dark:bg-gray-800 rounded-xl p-6 hover-card loading-animation">
+                        <div class="flex items-start">
+                            <div class="w-10 h-10 bg-blue-100 dark:bg-blue-900/30 rounded-lg flex items-center justify-center mr-4 flex-shrink-0">
+                                <i class="fas fa-graduation-cap text-blue-600 dark:text-blue-400"></i>
+                            </div>
+                            <div>
+                                <h4 class="font-semibold mb-2">考研课程探索</h4>
+                                <p class="text-sm text-gray-600 dark:text-gray-400">
+                                    大一就尝试学习新闻与传播的考研课程，虽然最终搁置，但让我提前了解了专业的深度。
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-white dark:bg-gray-800 rounded-xl p-6 hover-card loading-animation" style="animation-delay: 0.1s">
+                        <div class="flex items-start">
+                            <div class="w-10 h-10 bg-green-100 dark:bg-green-900/30 rounded-lg flex items-center justify-center mr-4 flex-shrink-0">
+                                <i class="fas fa-code text-green-600 dark:text-green-400"></i>
+                            </div>
+                            <div>
+                                <h4 class="font-semibold mb-2">Python编程之旅</h4>
+                                <p class="text-sm text-gray-600 dark:text-gray-400">
+                                    尝试跨学科学习编程，虽然现在"入土"了，但培养了我的逻辑思维能力。
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-white dark:bg-gray-800 rounded-xl p-6 hover-card loading-animation" style="animation-delay: 0.2s">
+                        <div class="flex items-start">
+                            <div class="w-10 h-10 bg-purple-100 dark:bg-purple-900/30 rounded-lg flex items-center justify-center mr-4 flex-shrink-0">
+                                <i class="fas fa-language text-purple-600 dark:text-purple-400"></i>
+                            </div>
+                            <div>
+                                <h4 class="font-semibold mb-2">三语天才梦</h4>
+                                <p class="text-sm text-gray-600 dark:text-gray-400">
+                                    尝试学习第三门语言，虽然"天才"是开玩笑的，但开阔了我的文化视野。
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-white dark:bg-gray-800 rounded-xl p-6 hover-card loading-animation" style="animation-delay: 0.3s">
+                        <div class="flex items-start">
+                            <div class="w-10 h-10 bg-red-100 dark:bg-red-900/30 rounded-lg flex items-center justify-center mr-4 flex-shrink-0">
+                                <i class="fas fa-dumbbell text-red-600 dark:text-red-400"></i>
+                            </div>
+                            <div>
+                                <h4 class="font-semibold mb-2">兴趣探索</h4>
+                                <p class="text-sm text-gray-600 dark:text-gray-400">
+                                    从小时候开始就心心念念的网络游戏到中二病时期“仗剑走天涯”的剑道修行，我尝试寻找真正热爱的事物
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="mt-12 text-center glass rounded-2xl p-8 loading-animation" style="animation-delay: 0.5s">
+                    <i class="fas fa-gift text-4xl text-primary mb-4"></i>
+                    <h3 class="text-2xl font-semibold mb-4">命运的礼物</h3>
+                    <p class="text-gray-600 dark:text-gray-400 max-w-2xl mx-auto leading-relaxed">
+                        而结果就正如大多数人一样，什么成果都没有留下，只留下了一份特殊的被精心包装起来的礼物——<br>
+                        挫折与挣扎<br>
+                        这份礼物的发货方是命运，收货人是我。<br>
+                        一年来，我磕磕碰碰、四处碰壁、尝尽了失败的滋味，味道还不错。<br>
+                        为应对这份挫折，我开始变得柔软，我开始学着把执念放下，我开始试着享受当下的每一刻，我开始在自己的生活中变得平静。<br>
+                        命运对我的剥夺还是蛮残忍的，但好在最终并没有把我打败，<br>
+                        并且还让我在这个过程中变得更加坚韧。<br>
+                        也正是这份韧性，让我在这里与大家再一次见面了！
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <!-- Looking For Section -->
+    <section id="looking-for" class="py-20 bg-white dark:bg-gray-800">
+        <div class="container mx-auto px-6">
+            <h2 class="text-4xl font-bold text-center mb-12 loading-animation">我在寻找</h2>
+            <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-6 max-w-6xl mx-auto">
+                <div class="text-center loading-animation">
+                    <div class="w-20 h-20 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <i class="fas fa-users text-primary text-2xl"></i>
+                    </div>
+                    <h4 class="font-semibold mb-2">同路人</h4>
+                    <p class="text-sm text-gray-600 dark:text-gray-400">
+                        不畏惧试错，愿意一同前行的伙伴
+                    </p>
+                </div>
+                
+                <div class="text-center loading-animation" style="animation-delay: 0.1s">
+                    <div class="w-20 h-20 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <i class="fas fa-handshake text-primary text-2xl"></i>
+                    </div>
+                    <h4 class="font-semibold mb-2">战友</h4>
+                    <p class="text-sm text-gray-600 dark:text-gray-400">
+                        探索内心，渴望真诚深度链接的朋友
+                    </p>
+                </div>
+                
+                <div class="text-center loading-animation" style="animation-delay: 0.2s">
+                    <div class="w-20 h-20 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <i class="fas fa-rocket text-primary text-2xl"></i>
+                    </div>
+                    <h4 class="font-semibold mb-2">实干家</h4>
+                    <p class="text-sm text-gray-600 dark:text-gray-400">
+                        一起将想法落地，哪怕只是小小一步
+                    </p>
+                </div>
+                
+                <div class="text-center loading-animation" style="animation-delay: 0.3s">
+                    <div class="w-20 h-20 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <i class="fas fa-lightbulb text-primary text-2xl"></i>
+                    </div>
+                    <h4 class="font-semibold mb-2">创业者</h4>
+                    <p class="text-sm text-gray-600 dark:text-gray-400">
+                        需要"炮灰"的早期项目，我来趟雷
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <!-- AI Chat Section -->
+    <section id="ai-chat" class="py-20 bg-gray-50 dark:bg-gray-900">
+        <div class="container mx-auto px-6">
+            <h2 class="text-4xl font-bold text-center mb-8 loading-animation">和AI版的我聊聊天</h2>
+            <p class="text-center text-gray-600 dark:text-gray-400 mb-12 loading-animation">
+                如果你想更深入地了解我，可以和这个AI助手聊天，它了解我的一切
+            </p>
+            <div class="max-w-4xl mx-auto glass rounded-2xl p-4 md:p-8 loading-animation">
+                <iframe
+                    src="https://udify.app/chatbot/FDhhgGMQTzlmyrP5"
+                    style="width: 100%; height: 600px; border-radius: 12px;"
+                    frameborder="0"
+                    allow="microphone">
+                </iframe>
+            </div>
+        </div>
+    </section>
+    
+    <!-- Contact Section -->
+    <section id="contact" class="py-20 bg-white dark:bg-gray-800">
+        <div class="container mx-auto px-6">
+            <h2 class="text-4xl font-bold text-center mb-12 loading-animation">联系我</h2>
+            <div class="max-w-2xl mx-auto text-center">
+                <p class="text-gray-600 dark:text-gray-400 mb-8 loading-animation">
+                    我相信真诚的交流是最好的链接，期待能和你碰撞出不一样的火花！
+                </p>
+                <div class="grid md:grid-cols-3 gap-6">
+                    <a href="weixin://dl/chat?NineGreen97" class="glass rounded-xl p-6 hover-card loading-animation group">
+                        <i class="fab fa-weixin text-3xl text-green-600 mb-4 group-hover:scale-110 transition-transform"></i>
+                        <h4 class="font-semibold mb-2">微信</h4>
+                        <p class="text-sm text-gray-600 dark:text-gray-400">NineGreen97</p>
+                    </a>
+                    
+                    <a href="tencent://message/?uin=1693532095" class="glass rounded-xl p-6 hover-card loading-animation group" style="animation-delay: 0.1s">
+                        <i class="fab fa-qq text-3xl text-blue-600 mb-4 group-hover:scale-110 transition-transform"></i>
+                        <h4 class="font-semibold mb-2">QQ</h4>
+                        <p class="text-sm text-gray-600 dark:text-gray-400">1693532095</p>
+                    </a>
+                    
+                    <a href="mailto:ninegreen520@gmail.com" class="glass rounded-xl p-6 hover-card loading-animation group" style="animation-delay: 0.2s">
+                        <i class="fas fa-envelope text-3xl text-red-600 mb-4 group-hover:scale-110 transition-transform"></i>
+                        <h4 class="font-semibold mb-2">邮箱</h4>
+                        <p class="text-sm text-gray-600 dark:text-gray-400">ninegreen520@gmail.com</p>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <!-- Footer -->
+    <footer class="py-8 bg-gray-100 dark:bg-gray-900 border-t border-gray-200 dark:border-gray-700">
+        <div class="container mx-auto px-6 text-center">
+            <p class="text-gray-600 dark:text-gray-400">
+                © 2025 九青（秦昱秋）· 用心制作 · 
+                <span class="text-primary">永远在路上</span>
+            </p>
+        </div>
+    </footer>
+    
+    <!-- Back to Top Button -->
+    <button id="back-to-top" class="fixed bottom-8 right-8 w-12 h-12 bg-primary text-white rounded-full shadow-lg hover:bg-primary-dark transition-all opacity-0 pointer-events-none">
+        <i class="fas fa-arrow-up"></i>
+    </button>
+    
+    <script>
+        // Theme Toggle
+        const themeToggle = document.getElementById('theme-toggle');
+        const html = document.documentElement;
+        
+        // Check for saved theme preference or default to system preference
+        const savedTheme = localStorage.getItem('theme');
+        const systemTheme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+        const theme = savedTheme || systemTheme;
+        
+        if (theme === 'dark') {
+            html.classList.add('dark');
+        }
+        
+        themeToggle.addEventListener('click', () => {
+            html.classList.toggle('dark');
+            const currentTheme = html.classList.contains('dark') ? 'dark' : 'light';
+            localStorage.setItem('theme', currentTheme);
+        });
+        
+        // Mobile Menu Toggle
+        const mobileMenuToggle = document.getElementById('mobile-menu-toggle');
+        const mobileMenu = document.getElementById('mobile-menu');
+        
+        mobileMenuToggle.addEventListener('click', () => {
+            mobileMenu.classList.toggle('hidden');
+        });
+        
+        // Close mobile menu when clicking on links
+        const mobileLinks = mobileMenu.querySelectorAll('a');
+        mobileLinks.forEach(link => {
+            link.addEventListener('click', () => {
+                mobileMenu.classList.add('hidden');
+            });
+        });
+        
+        // Smooth Scroll Navigation Active State
+        const sections = document.querySelectorAll('section[id]');
+        const navLinks = document.querySelectorAll('.nav-link');
+        
+        window.addEventListener('scroll', () => {
+            let current = '';
+            
+            sections.forEach(section => {
+                const sectionTop = section.offsetTop;
+                const sectionHeight = section.clientHeight;
+                if (scrollY >= sectionTop - 100) {
+                    current = section.getAttribute('id');
+                }
+            });
+            
+            navLinks.forEach(link => {
+                link.classList.remove('active');
+                if (link.getAttribute('href') === `#${current}`) {
+                    link.classList.add('active');
+                }
+            });
+        });
+        
+        // Back to Top Button
+        const backToTop = document.getElementById('back-to-top');
+        
+        window.addEventListener('scroll', () => {
+            if (window.scrollY > 300) {
+                backToTop.style.opacity = '1';
+                backToTop.style.pointerEvents = 'auto';
+            } else {
+                backToTop.style.opacity = '0';
+                backToTop.style.pointerEvents = 'none';
+            }
+        });
+        
+        backToTop.addEventListener('click', () => {
+            window.scrollTo({
+                top: 0,
+                behavior: 'smooth'
+            });
+        });
+        
+        // Intersection Observer for Animations
+        const observerOptions = {
+            threshold: 0.1,
+            rootMargin: '0px 0px -50px 0px'
+        };
+        
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.style.opacity = '1';
+                    entry.target.style.transform = 'translateY(0)';
+                }
+            });
+        }, observerOptions);
+        
+        // Observe all elements with loading animation
+        document.querySelectorAll('.loading-animation').forEach(el => {
+            el.style.opacity = '0';
+            el.style.transform = 'translateY(20px)';
+            el.style.transition = 'all 0.6s ease-out';
+            observer.observe(el);
+        });
+        
+        // Parallax Effect for Hero Section
+        window.addEventListener('scroll', () => {
+            const scrolled = window.pageYOffset;
+            const parallax = document.querySelector('.absolute.inset-0');
+            if (parallax) {
+                parallax.style.transform = `translateY(${scrolled * 0.5}px)`;
+            }
+        });
+        
+        // Add Copy to Clipboard for Contact Info
+        document.querySelectorAll('#contact a').forEach(link => {
+            link.addEventListener('click', (e) => {
+                const text = link.querySelector('p').textContent;
+                navigator.clipboard.writeText(text).then(() => {
+                    // Show toast notification
+                    const toast = document.createElement('div');
+                    toast.className = 'fixed bottom-20 left-1/2 transform -translate-x-1/2 bg-gray-800 text-white px-4 py-2 rounded-lg shadow-lg z-50';
+                    toast.textContent = '已复制到剪贴板！';
+                    document.body.appendChild(toast);
+                    
+                    setTimeout(() => {
+                        toast.remove();
+                    }, 2000);
+                });
+            });
+        });
+    </script>
+</body>
+</html>
